@@ -121,7 +121,7 @@ class PYComputer:
                 idx, val = INSTRUCTION.INSTRUCTION_CODE, INSTRUCTION.VALUE
                 self.OPERATIONS[idx](val)
             self.PROGRAM_COUNTER += 1
-            time.sleep(0.1)
+            time.sleep(0.02)
         
     def __ADD_TO_REG(self, ADD, POSITION):
         if POSITION >= self.REGISTER_SIZE:
@@ -155,18 +155,17 @@ class PYComputer:
         self.PROGRAM_COUNTER = len(self.REGISTER)
         
     def __JMP(self, *args):
-        self.PROGRAM_COUNTER = args[0]
+        self.PROGRAM_COUNTER = args[0]-1
 
     # Jump if carry
     def __JPC(self, *args):
         if self.FLAGS['C']:
-            self.PROGRAM_COUNTER = args[0]
-            print('JPC')
+            self.PROGRAM_COUNTER = args[0]-1
 
     # Jump if Zero
     def __JPZ(self, *args):
         if self.FLAGS['Z']:
-            self.PROGRAM_COUNTER = args[0]
+            self.PROGRAM_COUNTER = args[0]-1
 
     # Store Register A at register address
     def __STR(self, *args):
@@ -174,7 +173,6 @@ class PYComputer:
 
     def __GET(self, *args):
         self.REGISTER_A = self.REGISTER[args[0]]
-        self.__CHECK_FLAGS()
 
     def __CHECK_FLAGS(self):
         self.FLAGS['Z'] = self.REGISTER_A == 0
