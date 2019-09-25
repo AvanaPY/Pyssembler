@@ -1,4 +1,4 @@
-MOV 255     ; 0xffff
+MOV 0xff     ; 0xffff
 STR 255     ; VALUE
 MOV 18
 STR 254     ; WORKING PLACE IN MEMORY

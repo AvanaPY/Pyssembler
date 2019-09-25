@@ -62,6 +62,12 @@ class Program:
                 return INSTRUCTION
         return None
 
+    def __PARSE_INSTRUCTION_VALUE(self, INSTRUCTION_VALUE_STRING):
+        try:
+            return int(INSTRUCTION_VALUE_STRING)
+        except:
+            return int(INSTRUCTION_VALUE_STRING, 16)
+
     def __CHECK_VALID(self, ASSEMBLY_CODE):
         INSTRUCTION_NAME = ASSEMBLY_CODE[0]
         if len(INSTRUCTION_NAME) == 0:
@@ -72,7 +78,7 @@ class Program:
             return False
         if INSTRUCTION.REQUIRES_VALUE:
             if len(ASSEMBLY_CODE) > 1:
-                INSTRUCTION_VALUE = int(ASSEMBLY_CODE[1])
+                INSTRUCTION_VALUE = self.__PARSE_INSTRUCTION_VALUE(ASSEMBLY_CODE[1])
             else:
                 print(f'COMPILE ERROR: INSTRUCTION "{INSTRUCTION_NAME}" REQUIRES A VALUE BUT DID NOT RECEIVE ONE')
                 return False
