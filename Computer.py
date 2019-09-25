@@ -49,6 +49,7 @@ class Program:
         for ASSEMBLY_CODE in self.CODE:
             ASSEMBLY_CODE = ASSEMBLY_CODE.strip()
             ASSEMBLY_CODE = re.sub(' +', ' ', ASSEMBLY_CODE)
+            ASSEMBLY_CODE = re.sub(';+', '', ASSEMBLY_CODE)
             ASSEMBLY_CODE = ASSEMBLY_CODE.split(' ')
             if not self.__CHECK_VALID(ASSEMBLY_CODE):
                 return False
@@ -64,6 +65,8 @@ class Program:
 
     def __CHECK_VALID(self, ASSEMBLY_CODE):
         INSTRUCTION_NAME = ASSEMBLY_CODE[0]
+        if len(INSTRUCTION_NAME) == 0:
+            return True
         INSTRUCTION = self.__GET_INSTRUCTION(INSTRUCTION_NAME)
         if INSTRUCTION == None:
             print(f'COMPILE ERROR: UNKNOWN COMMAND "{INSTRUCTION_NAME}"')
@@ -81,7 +84,8 @@ class Program:
 
 class PYComputer:
     def __init__(self):
-        self.REGISTER_SIZE = 0x10 # Register fits 16 instructions and values
+        self.INSTRUCTIONS_READ = 0
+        self.REGISTER_SIZE = 0x100 # Register fits 256 instructions and values
         self.REGISTER = [0 for i in range(self.REGISTER_SIZE)]
         self.REGISTER_A = 0xff
         self.PROGRAM_COUNTER = 0
@@ -105,6 +109,7 @@ class PYComputer:
             self.__STR,
             self.__GET
         ]
+        print(f'Initialized a Pyssembler virtual computer with a {self.REGISTER_SIZE}-size registry')
     def run_program(self, program: Program):
         if not program.COMPILE():
             print('EXECUTION ERROR: FAILED TO COMPILE PROGRAM, EXITING')
@@ -114,26 +119,27 @@ class PYComputer:
             if not self.__ADD_TO_REG(code, i):
                 return
             i += 1
-        print(f'Program loaded successfully')
+        print(f'Program loaded successfully with {self.INSTRUCTIONS_READ} instructions read.')
         thread = threading.Thread(target=self.__EXECUTE(), args=())
         thread.start()
         thread.join()
         
     def __EXECUTE(self):
         self.PROGRAM_COUNTER = 0
-        while self.PROGRAM_COUNTER < len(self.REGISTER):
+        while self.PROGRAM_COUNTER < self.INSTRUCTIONS_READ:
             INSTRUCTION = self.REGISTER[self.PROGRAM_COUNTER]
             if isinstance(INSTRUCTION, COMPILED_INSTRUCTION):
                 idx, val = INSTRUCTION.INSTRUCTION_CODE, INSTRUCTION.VALUE
                 self.OPERATIONS[idx](val)
             self.PROGRAM_COUNTER += 1
-            time.sleep(0.02)
+            time.sleep(0.002)
         
     def __ADD_TO_REG(self, ADD, POSITION):
         if POSITION >= self.REGISTER_SIZE:
             print(f'EXECUTION ERROR: ERROR REGISTER OUT OF MEMORY')
             return False
         self.REGISTER[POSITION] = ADD
+        self.INSTRUCTIONS_READ += 1
         return True
 
     def __NOP(self, *args):
