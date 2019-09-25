@@ -1,4 +1,12 @@
+MOV 255
+STR 255         ; Target
 MOV 1
-OUT ; Hello
-
-
+STR 254         ; INCREMENT VALUE
+MOV 0
+ADD 254
+OUT
+STR 253         ; SAVE PROGRESS
+SUB 255
+JPZ 11
+JMP 5
+HLT

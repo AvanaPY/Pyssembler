@@ -65,6 +65,8 @@ class Program:
 
     def __CHECK_VALID(self, ASSEMBLY_CODE):
         INSTRUCTION_NAME = ASSEMBLY_CODE[0]
+        if len(INSTRUCTION_NAME) == 0:
+            return True
         INSTRUCTION = self.__GET_INSTRUCTION(INSTRUCTION_NAME)
         if INSTRUCTION == None:
             print(f'COMPILE ERROR: UNKNOWN COMMAND "{INSTRUCTION_NAME}"')
@@ -130,7 +132,7 @@ class PYComputer:
                 idx, val = INSTRUCTION.INSTRUCTION_CODE, INSTRUCTION.VALUE
                 self.OPERATIONS[idx](val)
             self.PROGRAM_COUNTER += 1
-            time.sleep(0.02)
+            time.sleep(0.002)
         
     def __ADD_TO_REG(self, ADD, POSITION):
         if POSITION >= self.REGISTER_SIZE:
