@@ -29,13 +29,16 @@ class Program:
            INSTRUCTION('MOV', True, 1),
            INSTRUCTION('ADD', True,  2),
            INSTRUCTION('SUB', True,  3),
-           INSTRUCTION('OUT', False, 4),
-           INSTRUCTION('HLT', False, 5),
-           INSTRUCTION('JMP', True, 6),
-           INSTRUCTION('JPC', True, 7),
-           INSTRUCTION('JPZ', True, 8),
-           INSTRUCTION('STR', True, 9),
-           INSTRUCTION('GET', True, 10),
+           INSTRUCTION('MUL', True,  4),
+           INSTRUCTION('DIV', True,  5),
+           INSTRUCTION('MOD', True,  6),
+           INSTRUCTION('OUT', False, 7),
+           INSTRUCTION('HLT', False, 8),
+           INSTRUCTION('JMP', True,  9),
+           INSTRUCTION('JPC', True,  10),
+           INSTRUCTION('JPZ', True,  11),
+           INSTRUCTION('STR', True,  12),
+           INSTRUCTION('GET', True,  13),
        ]
 
     def __call__(self, ASSEMBLY_CODE):
@@ -91,6 +94,9 @@ class PYComputer:
             self.__MOV,
             self.__ADD,
             self.__SUB,
+            self.__MUL,
+            self.__DIV,
+            self.__MOD,
             self.__OUT,
             self.__HLT,
             self.__JMP,
@@ -145,6 +151,17 @@ class PYComputer:
         self.REGISTER_A = self.REGISTER_A - self.REGISTER[args[0]]
         self.__CHECK_FLAGS()
 
+    def __MUL(self, *args):
+        self.REGISTER_A = self.REGISTER_A * self.REGISTER[args[0]]
+        self.__CHECK_FLAGS()
+
+    def __DIV(self, *args):
+        self.REGISTER_A = self.REGISTER_A // self.REGISTER[args[0]]
+        self.__CHECK_FLAGS()
+
+    def __MOD(self, *args):
+        self.REGISTER_A = self.REGISTER_A % self.REGISTER[args[0]]
+        self.__CHECK_FLAGS()
     # Prints Register A's value
     def __OUT(self, *args):
         print(self.REGISTER_A)

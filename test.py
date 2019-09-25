@@ -20,11 +20,31 @@ def get_fibonacci():
                                  #15 z
     return fibonacci_program
 
+def get_even_numbers():
+    program = Program()
+    program('MOV 1')   #0
+    program('STR 15')  #1 Store incremental value at 15
+    program('MOV 2')   #2
+    program('STR 14')  #3 Store even-check value at 14
+    program('GET 13')  #4 Load x
+    program('ADD 15')  #5 Add increment
+    program('STR 13')  #6 Store value at 13
+    program('MOD 14')  #7 Check even
+    program('JPZ 10')  #8 
+    program('JMP 4')   #9
+    program('GET 13')  #10
+    program('OUT')     #11
+    program('JMP 5')   #12
+    
+    return program
 def main():
     computer = PYComputer()
 
-    program = get_fibonacci()
+    program = get_even_numbers()
     computer.run_program(program)
+
+    while 1:
+        input()
 
 if __name__ == '__main__':
     main()
