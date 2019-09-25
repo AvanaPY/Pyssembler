@@ -16,5 +16,7 @@ def main():
     program = get_program('program.pys')
     computer.run_program(program)
 
+    computer.print_registery()
+
 if __name__ == '__main__':
     main()

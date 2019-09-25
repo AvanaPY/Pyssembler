@@ -1,6 +1,7 @@
 import re
 import threading
 import time
+
 class INSTRUCTION:
     def __init__(self, NAME, REQUIRES_VALUE, INSTRUCTION_CODE):
         self.NAME = NAME
@@ -13,12 +14,9 @@ class COMPILED_INSTRUCTION:
     def __init__(self, INSTRUCTION_NUMBER, INSTRUCTION, VALUE=None):
         self.INSTRUCTION_NUMBER = INSTRUCTION_NUMBER
         self.INSTRUCTION_CODE = INSTRUCTION.INSTRUCTION_CODE
-        self.VALUE = VALUE
+        self.VALUE = VALUE if VALUE != None else 0
     def __str__(self):
-        if self.VALUE:
-            return f'{self.INSTRUCTION_NUMBER} ' + bin(self.INSTRUCTION_CODE)[2:].zfill(4) + ' ' + bin(self.VALUE)[2:].zfill(4)
-        else:
-            return f'{self.INSTRUCTION_NUMBER} ' + bin(self.INSTRUCTION_CODE)[2:].zfill(4)
+        return bin(self.INSTRUCTION_CODE)[2:].zfill(4) + bin(self.VALUE)[2:].zfill(8)
 
 class Program:
     def __init__(self):
@@ -38,7 +36,8 @@ class Program:
            INSTRUCTION('JPC', True,  10),
            INSTRUCTION('JPZ', True,  11),
            INSTRUCTION('STR', True,  12),
-           INSTRUCTION('GET', True,  13),
+           INSTRUCTION('GET', True, 13),
+           INSTRUCTION('PTA', True, 14)
        ]
 
     def __call__(self, ASSEMBLY_CODE):
@@ -86,7 +85,7 @@ class PYComputer:
     def __init__(self):
         self.INSTRUCTIONS_READ = 0
         self.REGISTER_SIZE = 0x100 # Register fits 256 instructions and values
-        self.REGISTER = [0 for i in range(self.REGISTER_SIZE)]
+        self.REGISTER = [0x0000 for i in range(self.REGISTER_SIZE)]
         self.REGISTER_A = 0xff
         self.PROGRAM_COUNTER = 0
         self.FLAGS = {
@@ -94,22 +93,37 @@ class PYComputer:
             'C': False, # Flag for bit overflow
         }
         self.OPERATIONS = [
-            self.__NOP,
-            self.__MOV,
-            self.__ADD,
-            self.__SUB,
-            self.__MUL,
-            self.__DIV,
-            self.__MOD,
-            self.__OUT,
-            self.__HLT,
-            self.__JMP,
-            self.__JPC,
-            self.__JPZ,
-            self.__STR,
-            self.__GET
+            self.__NOP,     # NO OPERATION
+            self.__MOV,     # MOVE
+            self.__ADD,     # ADDITION
+            self.__SUB,     # SUBTRACTION
+            self.__MUL,     # MULTIPLICATION
+            self.__DIV,     # DIVISION
+            self.__MOD,     # MODULO
+            self.__OUT,     # OUTPUT
+            self.__HLT,     # HALT
+            self.__JMP,     # JUMP
+            self.__JPC,     # JUMP CARRY
+            self.__JPZ,     # JUMP ZERO
+            self.__STR,     # STORE
+            self.__GET,     # GET
+            self.__PTA      # POINTER ADDRESS
         ]
         print(f'Initialized a Pyssembler virtual computer with a {self.REGISTER_SIZE}-size registry')
+    def print_registery(self):
+        HORIZONTAL_COUNT = 16
+        FILL_PRNT = '-' * (7 * HORIZONTAL_COUNT - 1)
+        print('\n' + FILL_PRNT)
+        print(f'Program registry:\n')
+        print(f'REGISTER A: 0x{self.REGISTER_A:02x}')
+        for i in range(HORIZONTAL_COUNT):
+            for j in range(self.REGISTER_SIZE // HORIZONTAL_COUNT):
+                val = self.REGISTER[i * HORIZONTAL_COUNT + j]
+                if not isinstance(val, int):
+                    val = int(val.__str__(), 2)
+                print(f'0x{val:04x}', end=' ')
+            print()
+        print(FILL_PRNT + '\n')
     def run_program(self, program: Program):
         if not program.COMPILE():
             print('EXECUTION ERROR: FAILED TO COMPILE PROGRAM, EXITING')
@@ -197,6 +211,9 @@ class PYComputer:
     def __GET(self, *args):
         self.REGISTER_A = self.REGISTER[args[0]]
 
+    def __PTA(self, *args):
+        POINTER_ADDRESS = self.REGISTER[args[0]]
+        self.__STR(POINTER_ADDRESS)
     def __CHECK_FLAGS(self):
         self.FLAGS['Z'] = self.REGISTER_A == 0
         if self.REGISTER_A > 0xff or self.REGISTER_A < 0:
